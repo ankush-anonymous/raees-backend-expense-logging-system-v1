@@ -1,0 +1,205 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-raees-reg",
+    "name": "Raees API — User",
+    "description": "Full `/api`: health, auth, users (`GET`, soft `DELETE`).\n\nSet `accessToken` after verify / refresh. `GET /users` needs `access: \"admin\"` on the JWT user. Deletes are soft-delete (`deletedAt`).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "testEmail", "value": "test.user@example.com" },
+    { "key": "testName", "value": "Test User" },
+    { "key": "testOtp", "value": "123456" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "userId", "value": "" },
+    { "key": "adminBootstrapSecret", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET API root",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/",
+            "description": "`GET /api/` → service metadata."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/health",
+            "description": "`GET /api/health` → liveness probe."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST Bootstrap admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{testName}}\",\n  \"email\": \"{{testEmail}}\",\n  \"bootstrapSecret\": \"{{adminBootstrapSecret}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/bootstrap-admin",
+            "description": "`POST /api/auth/bootstrap-admin` — needs `ADMIN_BOOTSTRAP_SECRET` in server env + same value in body. Creates verified admin; then Login → Verify OTP. Remove secret from prod when done."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{testName}}\",\n  \"email\": \"{{testEmail}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register",
+            "description": "`POST /api/auth/register` — emails registration OTP."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{testEmail}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login",
+            "description": "`POST /api/auth/login` — emails sign-in OTP for verified emails."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"otp\": \"{{testOtp}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/verify-otp",
+            "description": "`POST /api/auth/verify-otp` — copies `accessToken`, `refreshToken`, and optionally `userId` into collection variables."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Refresh tokens",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/refresh",
+            "description": "`POST /api/auth/refresh` — new access + refresh (rotate)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "GET All users (admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/users",
+            "description": "`GET /api/users` — admin JWT only; active (`deletedAt` null) users."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Me",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/users/me",
+            "description": "`GET /api/users/me` — current profile (Bearer)."
+          },
+          "response": []
+        },
+        {
+          "name": "GET user by id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/users/{{userId}}",
+            "description": "`GET /api/users/:userId` — own id or admin. Set `userId`."
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE Me (soft)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/users/me",
+            "description": "`DELETE /api/users/me` — soft delete (Bearer). `200` + `message`, `user` snapshot. `403` if admin."
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE by userId (soft)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/users/{{userId}}",
+            "description": "`DELETE /api/users/:userId` — soft delete; self or admin. `200` + snapshot. Target admin → `403`."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

@@ -61,3 +61,14 @@ export async function sendRegistrationOtpEmail(to, name, otp) {
   const text = `Hi ${name},\n\nYour verification code is: ${otp}\n\nIt expires in a few minutes. If you did not request this, ignore this email.\n`;
   await sendEmail({ to, subject, text });
 }
+
+/**
+ * @param {string} to
+ * @param {string} name
+ * @param {string} otp
+ */
+export async function sendLoginOtpEmail(to, name, otp) {
+  const subject = "Your sign-in code";
+  const text = `Hi ${name},\n\nYour sign-in code is: ${otp}\n\nIt expires in a few minutes. If you did not request this, ignore this email.\n`;
+  await sendEmail({ to, subject, text });
+}

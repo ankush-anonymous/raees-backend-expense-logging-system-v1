@@ -16,6 +16,26 @@ function refreshSecret() {
   return s;
 }
 
+/**
+ * Verifies access JWT (checks signature, `exp`, and issuer algorithm). Throws `jwt` errors subclasses for middleware to map.
+ * @param {string} token Raw Bearer token (no prefix)
+ */
+export function verifyAccessToken(token) {
+  return jwt.verify(token, accessSecret(), {
+    algorithms: ["HS256"],
+  });
+}
+
+/**
+ * Verifies refresh JWT (`sub` + expiry). Throws `jwt.*` errors subclasses.
+ * @param {string} token
+ */
+export function verifyRefreshToken(token) {
+  return jwt.verify(token, refreshSecret(), {
+    algorithms: ["HS256"],
+  });
+}
+
 /** @param {import("mongoose").Document & { email: string; access: string }} user */
 export function signTokens(user) {
   const userId = String(user._id);
