@@ -1,0 +1,21 @@
+{
+  "name": "raees-backend-expense-logging-system-v1",
+  "version": "1.0.0",
+  "description": "Expense logging API — Express + MongoDB",
+  "type": "module",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "mongoose": "^8.8.0"
+  }
+}
